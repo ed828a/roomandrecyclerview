@@ -1,13 +1,16 @@
 package com.dew.edward.roomandrecyclerview
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.dew.edward.roomandrecyclerview.controller.CreateUserActivity
 
 import kotlinx.android.synthetic.main.activity_main.*
 
+const val LOG_TAG = "LOG"
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,8 +19,9 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+            startActivity(Intent(this, CreateUserActivity::class.java))
         }
     }
 
