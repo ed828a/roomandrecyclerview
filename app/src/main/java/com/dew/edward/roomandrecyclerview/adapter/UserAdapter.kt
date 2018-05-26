@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.user_cell.view.*
  * Created by Edward on 5/25/2018.
  */
 
-class UserAdapter(val context: Context, val users: ArrayList<User>, val itemClick: (User) -> Unit): RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+class UserAdapter(val context: Context, val users: List<User>, val itemClick: (User) -> Unit): RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.user_cell, parent, false)
         

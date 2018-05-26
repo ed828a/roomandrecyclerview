@@ -1,23 +1,28 @@
 package com.dew.edward.roomandrecyclerview
 
+import android.app.Activity
+import android.arch.persistence.room.Room
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import com.dew.edward.roomandrecyclerview.adapter.UserAdapter
 import com.dew.edward.roomandrecyclerview.controller.CreateUserActivity
+import com.dew.edward.roomandrecyclerview.database.AppDatabase
 import com.dew.edward.roomandrecyclerview.model.User
-
+import com.dew.edward.roomandrecyclerview.model.UserDao
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 const val LOG_TAG = "LOG"
+const val REQUEST_CODE = 2
+const val USER = "user"
 
 class MainActivity : AppCompatActivity() {
-    lateinit var users: ArrayList<User>
+    lateinit var mUsers: MutableList<User>
+    lateinit var mUserDao: UserDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,16 +32,37 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener { view ->
             //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                    .setAction("Action", null).show()
-            startActivity(Intent(this, CreateUserActivity::class.java))
+            startActivityForResult(Intent(this, CreateUserActivity::class.java), REQUEST_CODE)
         }
-        users = arrayListOf()
-        recyclerView.adapter = UserAdapter(this, users){
+
+        mUsers = mutableListOf()
+        val db = Room.databaseBuilder(applicationContext,
+                AppDatabase::class.java, "app-database")
+                .allowMainThreadQueries()  //bad practice
+                .build()
+        mUserDao = db.userDao()
+        val users = mUserDao.allUsers
+        users.forEach { mUsers.add(it) }
+
+        recyclerView.adapter = UserAdapter(this, mUsers) {
             val intent = Intent(this, CreateUserActivity::class.java)
-            intent.putExtra("user", it)
-            startActivity(intent)
+            intent.putExtra(USER, it)
+            startActivityForResult(intent, REQUEST_CODE)
         }
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            val user = data?.getParcelableExtra<User>(USER)
+            if (user != null) {
+                mUserDao.insertAll(user)
+                mUsers.add(user)
+                recyclerView.adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
